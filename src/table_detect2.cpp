@@ -1,0 +1,149 @@
+#include <ros/ros.h>
+#include <visualization_msgs/Marker.h>
+#include <math.h>
+#include <cmath>
+#include <sensor_msgs/LaserScan.h>
+#include <iostream>
+#include <vector>
+
+ros::Publisher Marker_pub;
+ros::Publisher Table_pub;
+ros::Publisher Laser_pub;
+
+sensor_msgs::LaserScan Msg_laser;
+
+void laserCallback(const sensor_msgs::LaserScan::ConstPtr& msg)
+{
+  int i_pt_ct = 1, i_clus_ct = 0;
+  int i_no_threspt = 40;
+  double f_clus_sum = 0;
+  int i_no_readings = 0;
+  double f_range_thres = 2.5;
+  double f_clus_centre[50][2];     // {x, y}
+  double f_pre_pose[2] = {0, 0};   // {x, y}
+  double f_cur_pose[2] = {0, 0};   // {x, y}
+  double f_dist_diff = 0;
+  double f_diff_thres = 0.10;
+
+  Msg_laser.angle_increment = msg->angle_increment;
+  Msg_laser.angle_min = msg->angle_min;
+  Msg_laser.angle_max = msg->angle_max;
+  Msg_laser.time_increment = msg->time_increment;
+  Msg_laser.scan_time = msg->scan_time;
+  Msg_laser.range_min = msg->range_min;
+  Msg_laser.range_max = msg->range_max;
+  Msg_laser.header.frame_id = "laser";
+
+  visualization_msgs::Marker points;
+  points.header.frame_id = "laser";
+  points.header.stamp = ros::Time::now();
+  points.ns = "points";
+  points.action = visualization_msgs::Marker::ADD;
+  points.pose.orientation.w = 1.0;
+  points.id = 0;
+  points.type = visualization_msgs::Marker::POINTS;
+  points.scale.x = points.scale.y = 0.2;
+  points.color.g = 1.0f;
+  points.color.a = 1.0;
+
+  i_no_readings = 1 + ((Msg_laser.angle_max - Msg_laser.angle_min)/Msg_laser.angle_increment);
+  Msg_laser.ranges.resize(i_no_readings);
+
+  for (int i = 0; i < i_no_readings; ++i)
+  {
+    Msg_laser.ranges[i] = msg->ranges[i];
+  }
+  Laser_pub.publish(Msg_laser);
+
+  for (int i = 1; i < i_no_readings; ++i)
+  {
+    //ROS_INFO("i - %d", i);
+    f_pre_pose[0] = Msg_laser.ranges[i-1] * sin((i-1) * Msg_laser.angle_increment);
+    f_pre_pose[1] = (-1) * Msg_laser.ranges[i-1] * cos((i-1) * Msg_laser.angle_increment);
+    f_cur_pose[0] = Msg_laser.ranges[i] * sin((i) * Msg_laser.angle_increment);
+    f_cur_pose[1] = (-1) * Msg_laser.ranges[i] * cos((i) * Msg_laser.angle_increment);
+
+    f_dist_diff = sqrt(pow(f_cur_pose[0]-f_pre_pose[0] ,2) + pow(f_cur_pose[1]-f_pre_pose[1] ,2));
+
+    if (f_dist_diff >= f_diff_thres)
+    {
+      f_pre_pose[0] = Msg_laser.ranges[i-1+i_pt_ct] * sin((i-1+i_pt_ct) * Msg_laser.angle_increment);
+      f_pre_pose[1] = (-1) * Msg_laser.ranges[i-1+i_pt_ct] * cos((i-1+i_pt_ct) * Msg_laser.angle_increment);
+      f_cur_pose[0] = Msg_laser.ranges[i+i_pt_ct] * sin((i+i_pt_ct) * Msg_laser.angle_increment);
+      f_cur_pose[1] = (-1) * Msg_laser.ranges[i+i_pt_ct] * cos((i+i_pt_ct) * Msg_laser.angle_increment);
+      f_dist_diff = sqrt(pow(f_cur_pose[0]-f_pre_pose[0] ,2) + pow(f_cur_pose[1]-f_pre_pose[1] ,2));
+      
+      while(f_dist_diff < f_diff_thres)
+      {
+        i_pt_ct++;
+        if (i_no_readings == i + i_pt_ct) break;
+
+        f_pre_pose[0] = Msg_laser.ranges[i-1+i_pt_ct] * sin((i-1+i_pt_ct) * Msg_laser.angle_increment);
+        f_pre_pose[1] = (-1) * Msg_laser.ranges[i-1+i_pt_ct] * cos((i-1+i_pt_ct) * Msg_laser.angle_increment);
+        f_cur_pose[0] = Msg_laser.ranges[i+i_pt_ct] * sin((i+i_pt_ct) * Msg_laser.angle_increment);
+        f_cur_pose[1] = (-1) * Msg_laser.ranges[i+i_pt_ct] * cos((i+i_pt_ct) * Msg_laser.angle_increment);
+        f_dist_diff = sqrt(pow(f_cur_pose[0]-f_pre_pose[0] ,2) + pow(f_cur_pose[1]-f_pre_pose[1] ,2));
+
+      }
+      ROS_INFO("pt_ct %d", i_pt_ct);
+      
+      /*
+      if ((i_pt_ct < i_no_threspt) && (Msg_laser.ranges[i] <= f_range_thres))
+      {
+        for (int y = 0; y < i_pt_ct; ++y)
+        {
+          f_clus_sum += Msg_laser.ranges[i+y];
+        }
+        float ave, no;
+        ave = f_clus_sum / (i_pt_ct);
+
+        f_clus_centre[i_clus_ct][0] = ave * sin((i+(i_pt_ct/2)) * Msg_laser.angle_increment);
+        f_clus_centre[i_clus_ct][1] = (-1) * ave * cos((i+(i_pt_ct/2)) * Msg_laser.angle_increment);
+        i_clus_ct++;
+      }*/
+
+      //if ((i_pt_ct < i_no_threspt) && (Msg_laser.ranges[i] <= f_range_thres))
+      //{
+        for (int y = 0; y < i_pt_ct; ++y)
+        {
+          f_clus_sum += Msg_laser.ranges[i+y];
+        }
+        float ave, no;
+        ave = f_clus_sum / (i_pt_ct);
+
+        f_clus_centre[i_clus_ct][0] = ave * sin((i+(i_pt_ct/2)) * Msg_laser.angle_increment);
+        f_clus_centre[i_clus_ct][1] = (-1) * ave * cos((i+(i_pt_ct/2)) * Msg_laser.angle_increment);
+        i_clus_ct++;
+      //}
+      
+      i += i_pt_ct;
+      i_pt_ct = 1;
+      f_clus_sum = 0;
+
+    }
+  }
+  
+  //ROS_INFO("i_clus_ct - %d", i_clus_ct);
+  for (int i = 0; i < i_clus_ct; ++i)
+  {
+    geometry_msgs::Point p;
+    p.x = f_clus_centre[i][0];
+    p.y = f_clus_centre[i][1];
+    points.points.push_back(p);
+  }
+  
+  Marker_pub.publish(points);
+
+}
+
+int main(int argc, char** argv )
+{
+  ros::init(argc, argv, "table_detection");
+  ros::NodeHandle n;
+  Marker_pub = n.advertise<visualization_msgs::Marker>("visualization_marker", 10);
+  Laser_pub = n.advertise<sensor_msgs::LaserScan>("laserpub", 10);
+  //Table_pub = n.advertise<visualization_msgs::Marker>("table_marker", 10);
+  ros::Subscriber sublaser = n.subscribe("base_scan", 10, laserCallback);
+
+  ros::spin();
+}

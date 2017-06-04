@@ -1,0 +1,5 @@
+<launch>
+  <node name="serial_node" pkg="rosserial_python" type="serial_node.py" args="/dev/arduino"/>
+  <node name="ard_cmd_pub" pkg="fyp2016" type="ard_cmd_pub" />
+</launch>
+

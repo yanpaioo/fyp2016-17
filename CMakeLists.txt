@@ -1,0 +1,228 @@
+cmake_minimum_required(VERSION 2.8.3)
+project(fyp2016)
+
+## Find catkin macros and libraries
+## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
+## is used, also find other catkin packages
+find_package(catkin REQUIRED COMPONENTS
+  geometry_msgs
+  nav_msgs
+  roscpp
+  rospy
+  sensor_msgs
+  std_msgs
+  tf
+)
+
+## System dependencies are found with CMake's conventions
+# find_package(Boost REQUIRED COMPONENTS system)
+
+
+## Uncomment this if the package has a setup.py. This macro ensures
+## modules and global scripts declared therein get installed
+## See http://ros.org/doc/api/catkin/html/user_guide/setup_dot_py.html
+# catkin_python_setup()
+
+################################################
+## Declare ROS messages, services and actions ##
+################################################
+
+## To declare and build messages, services or actions from within this
+## package, follow these steps:
+## * Let MSG_DEP_SET be the set of packages whose message types you use in
+##   your messages/services/actions (e.g. std_msgs, actionlib_msgs, ...).
+## * In the file package.xml:
+##   * add a build_depend and a run_depend tag for each package in MSG_DEP_SET
+##   * If MSG_DEP_SET isn't empty the following dependencies might have been
+##     pulled in transitively but can be declared for certainty nonetheless:
+##     * add a build_depend tag for "message_generation"
+##     * add a run_depend tag for "message_runtime"
+## * In this file (CMakeLists.txt):
+##   * add "message_generation" and every package in MSG_DEP_SET to
+##     find_package(catkin REQUIRED COMPONENTS ...)
+##   * add "message_runtime" and every package in MSG_DEP_SET to
+##     catkin_package(CATKIN_DEPENDS ...)
+##   * uncomment the add_*_files sections below as needed
+##     and list every .msg/.srv/.action file to be processed
+##   * uncomment the generate_messages entry below
+##   * add every package in MSG_DEP_SET to generate_messages(DEPENDENCIES ...)
+
+## Generate messages in the 'msg' folder
+# add_message_files(
+#   FILES
+#   Message1.msg
+#   Message2.msg
+# )
+
+## Generate services in the 'srv' folder
+# add_service_files(
+#   FILES
+#   Service1.srv
+#   Service2.srv
+# )
+
+## Generate actions in the 'action' folder
+# add_action_files(
+#   FILES
+#   Action1.action
+#   Action2.action
+# )
+
+## Generate added messages and services with any dependencies listed here
+# generate_messages(
+#   DEPENDENCIES
+#   geometry_msgs#   nav_msgs#   sensor_msgs
+# )
+
+###################################
+## catkin specific configuration ##
+###################################
+## The catkin_package macro generates cmake config files for your package
+## Declare things to be passed to dependent projects
+## INCLUDE_DIRS: uncomment this if you package contains header files
+## LIBRARIES: libraries you create in this project that dependent projects also need
+## CATKIN_DEPENDS: catkin_packages dependent projects also need
+## DEPENDS: system dependencies of this project that dependent projects also need
+catkin_package(
+#  INCLUDE_DIRS include
+#  LIBRARIES fyp2016
+#  CATKIN_DEPENDS geometry_msgs nav_msgs roscpp rrospy sensor_msgs
+#  DEPENDS system_lib
+)
+
+###########
+## Build ##
+###########
+
+## Specify additional locations of header files
+## Your package locations should be listed before other locations
+# include_directories(include)
+include_directories(
+  ${catkin_INCLUDE_DIRS}
+)
+
+## Declare a cpp library
+# add_library(fyp2016
+#   src/${PROJECT_NAME}/fyp2016.cpp
+# )
+
+## Declare a cpp executable
+# add_executable(fyp2016_node src/fyp2016_node.cpp)
+
+## Add cmake target dependencies of the executable/library
+## as an example, message headers may need to be generated before nodes
+# add_dependencies(fyp2016_node fyp2016_generate_messages_cpp)
+
+## Specify libraries to link a library or executable target against
+# target_link_libraries(fyp2016_node
+#   ${catkin_LIBRARIES}
+# )
+
+#############
+## Install ##
+#############
+
+# all install targets should use catkin DESTINATION variables
+# See http://ros.org/doc/api/catkin/html/adv_user_guide/variables.html
+
+## Mark executable scripts (Python etc.) for installation
+## in contrast to setup.py, you can choose the destination
+# install(PROGRAMS
+#   scripts/my_python_script
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
+
+## Mark executables and/or libraries for installation
+# install(TARGETS fyp2016 fyp2016_node
+#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
+#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
+# )
+
+## Mark cpp header files for installation
+# install(DIRECTORY include/${PROJECT_NAME}/
+#   DESTINATION ${CATKIN_PACKAGE_INCLUDE_DESTINATION}
+#   FILES_MATCHING PATTERN "*.h"
+#   PATTERN ".svn" EXCLUDE
+# )
+
+## Mark other files for installation (e.g. launch and bag files, etc.)
+# install(FILES
+#   # myfile1
+#   # myfile2
+#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}
+# )
+
+#############
+## Testing ##
+#############
+
+## Add gtest based cpp test target and link libraries
+# catkin_add_gtest(${PROJECT_NAME}-test test/test_fyp2016.cpp)
+# if(TARGET ${PROJECT_NAME}-test)
+#   target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME})
+# endif()
+
+## Add folders to be run by python nosetests
+# catkin_add_nosetests(test)
+
+add_executable(stageSimIMU src/stage_sim_imu.cpp)
+target_link_libraries(stageSimIMU ${catkin_LIBRARIES})
+add_dependencies(stageSimIMU fyp2016_generate_messages_cpp)
+
+
+add_executable(table_detect8 src/table_detect8.cpp)
+target_link_libraries(table_detect8 ${catkin_LIBRARIES})
+add_dependencies(table_detect8 fyp2016_generate_messages_cpp)
+
+add_executable(table_detect9 src/table_detect9.cpp)
+target_link_libraries(table_detect9 ${catkin_LIBRARIES})
+add_dependencies(table_detect9 fyp2016_generate_messages_cpp)
+
+add_executable(table_detect10 src/table_detect10.cpp)
+target_link_libraries(table_detect10 ${catkin_LIBRARIES})
+add_dependencies(table_detect10 fyp2016_generate_messages_cpp)
+
+add_executable(chair_detect src/chair_detect.cpp)
+target_link_libraries(chair_detect ${catkin_LIBRARIES})
+add_dependencies(chair_detect fyp2016_generate_messages_cpp)
+
+add_executable(chair_detect1 src/chair_detect1.cpp)
+target_link_libraries(chair_detect1 ${catkin_LIBRARIES})
+add_dependencies(chair_detect1 fyp2016_generate_messages_cpp)
+
+add_executable(table_detectactual src/table_detectactual.cpp)
+target_link_libraries(table_detectactual ${catkin_LIBRARIES})
+add_dependencies(table_detectactual fyp2016_generate_messages_cpp)
+
+add_executable(chair_path_plan src/chair_path_plan.cpp)
+target_link_libraries(chair_path_plan ${catkin_LIBRARIES})
+add_dependencies(chair_path_plan fyp2016_generate_messages_cpp)
+
+add_executable(path_plan5 src/path_plan5.cpp)
+target_link_libraries(path_plan5 ${catkin_LIBRARIES})
+add_dependencies(path_plan5 fyp2016_generate_messages_cpp)
+
+add_executable(path_plan6 src/path_plan6.cpp)
+target_link_libraries(path_plan6 ${catkin_LIBRARIES})
+add_dependencies(path_plan6 fyp2016_generate_messages_cpp)
+
+add_executable(path_plan7 src/path_plan7.cpp)
+target_link_libraries(path_plan7 ${catkin_LIBRARIES})
+add_dependencies(path_plan7 fyp2016_generate_messages_cpp)
+
+add_executable(path_plan9 src/path_plan9.cpp)
+target_link_libraries(path_plan9 ${catkin_LIBRARIES})
+add_dependencies(path_plan9 fyp2016_generate_messages_cpp)
+
+add_executable(chair_engage src/chair_engage.cpp)
+target_link_libraries(chair_engage ${catkin_LIBRARIES})
+add_dependencies(chair_engage fyp2016_generate_messages_cpp)
+
+add_executable(odom_reading src/odom_reading.cpp)
+target_link_libraries(odom_reading ${catkin_LIBRARIES})
+add_dependencies(odom_reading fyp2016_generate_messages_cpp)
+
+add_executable(ard_cmd_pub src/ard_cmd_pub.cpp)
+target_link_libraries(ard_cmd_pub ${catkin_LIBRARIES})
+add_dependencies(ard_cmd_pub fyp2016_generate_messages_cpp)
